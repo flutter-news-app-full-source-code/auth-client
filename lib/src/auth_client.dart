@@ -3,9 +3,9 @@
 
 import 'dart:async';
 
-import 'package:ht_shared/ht_shared.dart';
+import 'package:core/core.dart';
 
-/// {@template ht_auth_client}
+/// {@template auth_client}
 /// Abstract interface for authentication operations.
 ///
 /// Implementations of this class provide concrete mechanisms for
@@ -13,14 +13,14 @@ import 'package:ht_shared/ht_shared.dart';
 /// email+code and anonymous flows.
 ///
 /// All methods must adhere to the standardized exception handling
-/// defined in `package:ht_shared/exceptions.dart`. Implementations are
+/// defined in `package:core/exceptions.dart`. Implementations are
 /// responsible for catching specific underlying errors (e.g., network,
-/// server errors) and mapping them to the appropriate [HtHttpException]
+/// server errors) and mapping them to the appropriate [HttpException]
 /// subtypes.
 /// {@endtemplate}
-abstract class HtAuthClient {
-  /// {@macro ht_auth_client}
-  const HtAuthClient();
+abstract class AuthClient {
+  /// {@macro auth_client}
+  const AuthClient();
 
   /// Stream emitting the current authenticated [User] or `null`.
   ///
@@ -59,10 +59,7 @@ abstract class HtAuthClient {
   ///   the required permissions.
   /// - [NetworkException] for network issues.
   /// - [ServerException] for backend errors.
-  Future<void> requestSignInCode(
-    String email, {
-    bool isDashboardLogin = false,
-  });
+  Future<void> requestSignInCode(String email, {bool isDashboardLogin = false});
 
   /// Verifies the email code provided by the user and completes sign-in/sign-up.
   ///

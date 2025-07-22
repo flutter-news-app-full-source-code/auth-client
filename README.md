@@ -1,10 +1,10 @@
-# ht_auth_client
+# auth_client
 
 ![coverage: xx](https://img.shields.io/badge/coverage-xx-green)
 [![style: very good analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
 [![License: PolyForm Free Trial](https://img.shields.io/badge/License-PolyForm%20Free%20Trial-blue)](https://polyformproject.org/licenses/free-trial/1.0.0)
 
-This package defines the abstract interface (`HtAuthClient`) for authentication operations within the Headlines Toolkit ecosystem. It provides a contract that concrete implementations (e.g., API clients, Firebase clients, in-memory mocks) must adhere to.
+This package defines the abstract interface (`AuthClient`) for authentication operations within the Headlines Toolkit ecosystem. It provides a contract that concrete implementations (e.g., API clients, Firebase clients, in-memory mocks) must adhere to.
 
 The interface supports both an email+code password-less authentication and an anonymous authentication flow.
 
@@ -14,23 +14,23 @@ This package is intended to be used as an interface dependency. Add it to your `
 
 ```yaml
 dependencies:
-  ht_auth_client:
+  auth_client:
     git:
-      url: https://github.com/headlines-toolkit/ht-auth-client.git
+      url: https://github.com/flutter-news-app-full-source-code/auth-client.git
       # Consider adding a ref: tag for version pinning
 ```
 
 Then import the library:
 
 ```dart
-import 'package:ht_auth_client/ht_auth_client.dart';
+import 'package:auth_client/auth_client.dart';
 ```
 
-You will typically interact with a concrete implementation of `HtAuthClient` provided via dependency injection.
+You will typically interact with a concrete implementation of `AuthClient` provided via dependency injection.
 
 ## Features
 
-The `HtAuthClient` interface defines the following core authentication capabilities:
+The `AuthClient` interface defines the following core authentication capabilities:
 
 *   **`authStateChanges`**: A `Stream<User?>` that emits the current authenticated `User` or `null` whenever the authentication state changes (sign-in, sign-out). Ideal for reactive UI updates.
 *   **`getCurrentUser()`**: An asynchronous method `Future<User?>` to retrieve the currently signed-in `User`, if any.
@@ -42,14 +42,14 @@ The `HtAuthClient` interface defines the following core authentication capabilit
 *   **`verifyLinkEmail(String code)`**: Completes the email linking process by verifying the code. On success, it returns a `Future<AuthSuccessResponse>` with the now-permanent user and a new token.
 *   **`deleteAccount()`**: Allows an authenticated user to delete their own account.
 
-Error handling is standardized using exceptions defined in the `ht_shared` package. Implementations must map underlying errors to appropriate `HtHttpException` subtypes.
+Error handling is standardized using exceptions defined in the `core` package. Implementations must map underlying errors to appropriate `HttpException` subtypes.
 
 ## Usage
 
-Here's a conceptual example of how a consuming application (like a Flutter app using BLoC) might interact with an injected `HtAuthClient` instance:
+Here's a conceptual example of how a consuming application (like a Flutter app using BLoC) might interact with an injected `AuthClient` instance:
 
 ```dart
-// Assuming 'authClient' is an instance of a concrete HtAuthClient implementation
+// Assuming 'authClient' is an instance of a concrete AuthClient implementation
 
 // Listen to authentication state changes
 final authSubscription = authClient.authStateChanges.listen((user) {
@@ -143,6 +143,8 @@ Future<void> logOut() async {
 // authSubscription.cancel();
 ```
 
-## License
+## 🔑 Licensing
 
-This package is licensed under the [PolyForm Free Trial](LICENSE). Please review the terms before use.
+This package is source-available and licensed under the [PolyForm Free Trial 1.0.0](LICENSE). Please review the terms before use.
+
+For commercial licensing options that grant the right to build and distribute unlimited applications, please visit the main [**Flutter News App - Full Source Code Toolkit**](https://github.com/flutter-news-app-full-source-code) organization.
