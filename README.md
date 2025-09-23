@@ -1,150 +1,45 @@
-# auth_client
+<div align="center">
+  <img src="https://avatars.githubusercontent.com/u/202675624?s=400&u=dc72a2b53e8158956a3b672f8e52e39394b6b610&v=4" alt="Flutter News App Toolkit Logo" width="220">
+  <h1>Auth Client</h1>
+  <p><strong>An abstract interface for authentication operations within the Flutter News App Toolkit.</strong></p>
+</div>
 
-![coverage: xx](https://img.shields.io/badge/coverage-xx-green)
-[![style: very good analysis](https://img.shields.io/badge/style-very_good_analysis-B22C89.svg)](https://pub.dev/packages/very_good_analysis)
-[![License: PolyForm Free Trial](https://img.shields.io/badge/License-PolyForm%20Free%20Trial-blue)](https://polyformproject.org/licenses/free-trial/1.0.0)
+<p align="center">
+  <img src="https://img.shields.io/badge/coverage-100%25-green?style=for-the-badge" alt="coverage">
+  <a href="https://flutter-news-app-full-source-code.github.io/docs/"><img src="https://img.shields.io/badge/LIVE_DOCS-VIEW-slategray?style=for-the-badge" alt="Live Docs: View"></a>
+  <a href="https://github.com/flutter-news-app-full-source-code"><img src="https://img.shields.io/badge/MAIN_PROJECT-BROWSE-purple?style=for-the-badge" alt="Main Project: Browse"></a>
+</p>
 
-This package defines the abstract interface (`AuthClient`) for authentication operations within the Headlines Toolkit ecosystem. It provides a contract that concrete implementations (e.g., API clients, Firebase clients, in-memory mocks) must adhere to.
+This `auth_client` package defines the abstract interface (`AuthClient`) for authentication operations within the [**Flutter News App Full Source Code Toolkit**](https://github.com/flutter-news-app-full-source-code). It provides a clear contract that concrete implementations (e.g., API clients, Firebase clients, in-memory mocks) must adhere to. The interface supports both an email+code password-less authentication and an anonymous authentication flow, ensuring consistent and flexible authentication mechanisms across the Flutter mobile app, web dashboard, and Dart Frog backend API.
 
-The interface supports both an email+code password-less authentication and an anonymous authentication flow.
+## ⭐ Feature Showcase: Flexible & Standardized Authentication
 
-## Getting Started
+This package offers a comprehensive set of features for managing authentication operations.
 
-This package is intended to be used as an interface dependency. Add it to your `pubspec.yaml`:
+<details>
+<summary><strong>🧱 Core Functionality</strong></summary>
 
-```yaml
-dependencies:
-  auth_client:
-    git:
-      url: https://github.com/flutter-news-app-full-source-code/auth-client.git
-      # Consider adding a ref: tag for version pinning
-```
+### 🚀 Abstract `AuthClient` Interface
+- **`AuthClient` Abstract Class:** Defines a generic, provider-agnostic interface for all authentication operations.
+- **`authStateChanges` Stream:** A `Stream<User?>` that emits the current authenticated `User` or `null` whenever the authentication state changes (sign-in, sign-out). This is ideal for reactive UI updates.
+- **`getCurrentUser()`:** An asynchronous method `Future<User?>` to retrieve the currently signed-in `User`, if any.
 
-Then import the library:
+### 🔐 Authentication Flows
+- **`requestSignInCode(String email, {bool isDashboardLogin = false})`:** Initiates the passwordless sign-in flow. It is context-aware, supporting both standard sign-in and privileged dashboard login with appropriate validation.
+- **`verifySignInCode(String email, String code, {bool isDashboardLogin = false})`:** Verifies the email code to complete the sign-in/sign-up process. For dashboard login, it strictly performs a login and does not create new accounts. Returns a `Future<AuthSuccessResponse>`.
+- **`signInAnonymously()`:** Signs the user in anonymously, creating a temporary user identity on the backend and returning a `Future<AuthSuccessResponse>` containing the anonymous `User` and token.
+- **`signOut()`:** Signs out the current user (whether authenticated normally or anonymously).
+- **`linkEmail(String email)`:** Initiates the process of linking an email to an existing anonymous account.
+- **`verifyLinkEmail(String code)`:** Completes the email linking process by verifying the code. On success, it returns a `Future<AuthSuccessResponse>` with the now-permanent user and a new token.
+- **`deleteAccount()`:** Allows an authenticated user to delete their own account.
 
-```dart
-import 'package:auth_client/auth_client.dart';
-```
+### 🛡️ Standardized Error Handling
+- **`HttpException` Propagation:** Implementations must map underlying errors to appropriate `HttpException` subtypes (defined in `core`), ensuring consistent and predictable error management across the application layers.
 
-You will typically interact with a concrete implementation of `AuthClient` provided via dependency injection.
+> **💡 Your Advantage:** This package provides a clear, abstract interface for authentication, decoupling your application from specific authentication service providers. This design promotes flexibility, testability, and maintainability, allowing you to easily integrate and swap authentication solutions as needed, while ensuring consistent user management and error handling.
 
-## Features
-
-The `AuthClient` interface defines the following core authentication capabilities:
-
-*   **`authStateChanges`**: A `Stream<User?>` that emits the current authenticated `User` or `null` whenever the authentication state changes (sign-in, sign-out). Ideal for reactive UI updates.
-*   **`getCurrentUser()`**: An asynchronous method `Future<User?>` to retrieve the currently signed-in `User`, if any.
-*   **`requestSignInCode(String email, {bool isDashboardLogin = false})`**: Initiates the passwordless sign-in flow. It's context-aware: for standard sign-in, it sends a code; for dashboard login (`isDashboardLogin: true`), it first validates the user's existence and permissions.
-*   **`verifySignInCode(String email, String code, {bool isDashboardLogin = false})`**: Verifies the email code. For standard flows, it signs in or creates a user. For dashboard login (`isDashboardLogin: true`), it strictly performs a login and does not create new accounts. Returns a `Future<AuthSuccessResponse>`.
-*   **`signInAnonymously()`**: Signs the user in anonymously, creating a temporary user identity on the backend and returning a `Future<AuthSuccessResponse>` containing the anonymous `User` and token.
-*   **`signOut()`**: Signs out the current user (normal or anonymous).
-*   **`linkEmail(String email)`**: Initiates the process of linking an email to an existing anonymous account.
-*   **`verifyLinkEmail(String code)`**: Completes the email linking process by verifying the code. On success, it returns a `Future<AuthSuccessResponse>` with the now-permanent user and a new token.
-*   **`deleteAccount()`**: Allows an authenticated user to delete their own account.
-
-Error handling is standardized using exceptions defined in the `core` package. Implementations must map underlying errors to appropriate `HttpException` subtypes.
-
-## Usage
-
-Here's a conceptual example of how a consuming application (like a Flutter app using BLoC) might interact with an injected `AuthClient` instance:
-
-```dart
-// Assuming 'authClient' is an instance of a concrete AuthClient implementation
-
-// Listen to authentication state changes
-final authSubscription = authClient.authStateChanges.listen((user) {
-  if (user != null) {
-    print('User signed in: ${user.id}, Roles: ${user.roles}');
-    // Navigate to home screen, update UI
-  } else {
-    print('User signed out');
-    // Navigate to login screen
-  }
-});
-
-// --- Email+Code Flow (Dashboard Example) ---
-
-Future<void> startDashboardSignIn(String email) async {
-  try {
-    // For a privileged dashboard login, set the flag to true
-    await authClient.requestSignInCode(email, isDashboardLogin: true);
-    // Navigate to code entry screen
-  } on UnauthorizedException {
-    print('This email is not registered for dashboard access.');
-  } on ForbiddenException {
-    print('You do not have permission to access the dashboard.');
-  } catch (e) {
-    print('Failed to request code: $e');
-  }
-}
-
-// --- Email+Code Flow ---
-
-Future<void> startEmailSignIn(String email) async {
-  try {
-    await authClient.requestSignInCode(email);
-    // Navigate to code entry screen
-  } on InvalidInputException catch (e) {
-    print('Invalid email format: ${e.message}');
-  } on NetworkException {
-    print('Network error requesting code.');
-  } catch (e) {
-    print('Failed to request code: $e');
-  }
-}
-
-Future<void> verifyCode(String email, String code) async {
-  try {
-    final authResponse = await authClient.verifySignInCode(email, code);
-    final user = authResponse.user;
-    final token = authResponse.token;
-    print('Successfully signed in/up user: ${user.id}, token: $token');
-    // authStateChanges will emit the new user
-  } on AuthenticationException catch (e) {
-    print('Invalid code: ${e.message}');
-  } on InvalidInputException catch (e) {
-    print('Invalid input: ${e.message}');
-  } on NetworkException {
-    print('Network error verifying code.');
-  } catch (e) {
-    print('Failed to verify code: $e');
-  }
-}
-
-// --- Anonymous Flow ---
-
-Future<void> signInAnon() async {
-  try {
-    final authResponse = await authClient.signInAnonymously();
-    final user = authResponse.user;
-    final token = authResponse.token;
-    print('Signed in anonymously: ${user.id}, token: $token');
-    // authStateChanges will emit the new anonymous user
-  } on NetworkException {
-    print('Network error signing in anonymously.');
-  } catch (e) {
-    print('Failed to sign in anonymously: $e');
-  }
-}
-
-// --- Sign Out ---
-
-Future<void> logOut() async {
-  try {
-    await authClient.signOut();
-    print('Signed out successfully.');
-    // authStateChanges will emit null
-  } catch (e) {
-    print('Failed to sign out: $e');
-  }
-}
-
-// Remember to cancel streams
-// authSubscription.cancel();
-```
+</details>
 
 ## 🔑 Licensing
 
-This package is source-available and licensed under the [PolyForm Free Trial 1.0.0](LICENSE). Please review the terms before use.
-
-For commercial licensing options that grant the right to build and distribute unlimited applications, please visit the main [**Flutter News App - Full Source Code Toolkit**](https://github.com/flutter-news-app-full-source-code) organization.
+This `auth_client` package is an integral part of the [**Flutter News App Full Source Code Toolkit**](https://github.com/flutter-news-app-full-source-code). For comprehensive details regarding licensing, including trial and commercial options for the entire toolkit, please refer to the main toolkit organization page.
