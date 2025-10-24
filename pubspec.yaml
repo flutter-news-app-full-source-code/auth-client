@@ -2,6 +2,7 @@ name: auth_client
 description: Defines the abstract interface for authentication operations within the Headlines Toolkit, supporting email+code and anonymous flows.
 repository: https://github.com/flutter-news-app-full-source-code/auth-client
 publish_to: none
+version: 1.0.1
 
 environment:
   sdk: ^3.9.0
@@ -10,7 +11,7 @@ dependencies:
   core:
     git:
       url: https://github.com/flutter-news-app-full-source-code/core.git
-      ref: v1.2.0
+      ref: v1.3.1
   equatable: ^2.0.7
   json_annotation: ^4.9.0
 
